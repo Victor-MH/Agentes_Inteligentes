@@ -9,21 +9,31 @@ class A_Espia():
         #3 | guardia       |  G
         #4 | tesoro        |  $
         #5 | cárcel        |  C
-
-    # Almacena los estados en las 4 direcciones (arriba, derecha, abajo, izquierda)
-    environment = [0, 0, 0, 0]
-    # Almacena la posición del agente y,x
-    position = [0, 1]
-    # Donde se el agente construye su mapa
-    agentMap = []
-
     def __init__(self, originalMap):
         self.originalMap = tuple(originalMap)
         self.workingMap = originalMap
-        print("El agente está vivoooo")
+        print('El agente está vivoooo')
 
-        for i in range(15):
+        # Almacena los estados en las 4 direcciones (arriba, derecha, abajo, izquierda)
+        self.environment = [0, 0, 0, 0]
+        # Almacena la posición del agente y,x
+        self.position = [0, 1]
+        # Bandera para saber si tiene el artefacto/tesoro o no
+        self.hasTreasure = False
+        # Donde se el agente construye su mapa
+        self.agentMap = [
+            ['=', 'E', '=', '=', '=', '=', '=', '='],
+            ['|', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
+            ['|', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
+            ['|', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
+            ['|', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
+            ['=', '=', '=', '=', '=', '=', '=', '=']
+        ]
+
+        for i in range(4):
             self.randomDirection()
+
+
 
     def testEnv(self):
         print(' ', self.environment[0], ' ')
@@ -34,11 +44,21 @@ class A_Espia():
         num = random.randint(0, 3)
         return num
 
+    def updateAgentMap(self):
+        self.agentMap[self.position[0] - 1][self.position[1]] = self.workingMap[self.position[0] - 1][self.position[1]]
+        self.agentMap[self.position[0]][self.position[1] + 1] = self.workingMap[self.position[0]][self.position[1] + 1]
+        self.agentMap[self.position[0] + 1][self.position[1]] = self.workingMap[self.position[0] + 1][self.position[1]]
+        self.agentMap[self.position[0]][self.position[1] - 1] = self.workingMap[self.position[0]][self.position[1] - 1]
+
+        self.agentMap[self.position[0]][self.position[1]] = '#'
+
     def checkEnvironment(self):
         self.environment[0] = self.workingMap[self.position[0] - 1][self.position[1]]
         self.environment[1] = self.workingMap[self.position[0]][self.position[1] + 1]
         self.environment[2] = self.workingMap[self.position[0] + 1][self.position[1]]
         self.environment[3] = self.workingMap[self.position[0]][self.position[1] - 1]
+
+        self.updateAgentMap()
 
         for index in range(4):
             element = self.environment[index]
@@ -46,7 +66,7 @@ class A_Espia():
                 self.environment[index] = 0
             elif element == '+' or element == '|' or element == '=':
                 self.environment[index] = 1
-            elif element == '':   #Falta analizar
+            elif element == '#':   #Falta analizar
                 self.environment[index] = 2
             elif element == 'G':
                 self.environment[index] = 3
@@ -60,7 +80,7 @@ class A_Espia():
         self.testEnv()
 
     def clearPosition(self):
-        self.workingMap[self.position[0]][self.position[1]] = ' '
+        self.workingMap[self.position[0]][self.position[1]] = '#'
         pass
 
     def updatePosition(self):

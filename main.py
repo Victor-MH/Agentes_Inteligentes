@@ -4,9 +4,9 @@ import A_Espia
 
 
 def newMap():
-    x = int(input("Cuántas columnas quieres en el mapa? "))
-    y = int(input("Cuántas filas quieres en el mapa? "))
-    obstacles = int(input("Cuántos obstáculos quieres? "))
+    x = int(input('Cuántas columnas quieres en el mapa? '))
+    y = int(input('Cuántas filas quieres en el mapa? '))
+    obstacles = int(input('Cuántos obstáculos quieres? '))
 
     characters = ['+', 'T', 'G', 'C']
     mapa = []
@@ -37,10 +37,10 @@ def printMap(map):
 
 mapa = [
     ['=', 'E', '=', '=', '=', '=', '=', '='],
-    ['|', ' ', " ", " ", "+", "G", "C", "|"],
-    ["|", " ", " ", " ", " ", " ", "G", "|"],
-    ["|", "+", " ", " ", " ", "+", "+", "|"],
-    ["|", "+", "+", "+", " ", " ", "T", "|"],
+    ['|', ' ', ' ', ' ', '+', 'G', 'C', '|'],
+    ['|', ' ', ' ', ' ', ' ', ' ', 'G', '|'],
+    ['|', '+', ' ', ' ', ' ', '+', '+', '|'],
+    ['|', '+', '+', '+', ' ', ' ', 'T', '|'],
     ['=', '=', '=', '=', '=', '=', '=', '=']
 ]
 
@@ -53,4 +53,5 @@ if __name__ == '__main__':
 
     a = A_Espia.A_Espia(mapa)
     printMap(mapa)
+    printMap(a.agentMap)
 
