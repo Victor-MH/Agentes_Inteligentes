@@ -1,4 +1,14 @@
 import random
+from time import sleep
+from os import system, name
+
+def clear():
+    # for windows
+    if name == 'nt':
+        _ = system('cls')
+    # for mac and linux(here, os.name is 'posix')
+    else:
+        _ = system('clear')
 
 
 class A_Espia():
@@ -18,8 +28,14 @@ class A_Espia():
         self.environment = [0, 0, 0, 0]
         # Almacena la posición del agente y,x
         self.position = [0, 1]
+        # Almacena la posición donde entró el agente y,x
+        self.startPosition = [0, 1]
         # Bandera para saber si tiene el artefacto/tesoro o no
         self.hasTreasure = False
+        # Caracteres por los que se puede mover, cuando tiene el artefacto solo puede moverse por el camino que ya
+        # recorrió e intercambiamos los caracteres
+        self.allowedPath = ' '
+        self.blockedPath = '#'
         # Donde se el agente construye su mapa
         self.agentMap = [
             ['=', 'E', '=', '=', '=', '=', '=', '='],
@@ -30,10 +46,23 @@ class A_Espia():
             ['=', '=', '=', '=', '=', '=', '=', '=']
         ]
 
-        for i in range(4):
+        self.isAlive()
+
+    def isAlive(self):
+        while True:
+            if self.hasTreasure and self.startPosition == self.position:
+                print('El espía salió con el tesoro')
+                break
             self.randomDirection()
+            sleep(1)
+            clear()
+            self.printMap(self.workingMap)
 
-
+    def printMap(self, map):
+        for i in range(len(map)):
+            for j in range(len(map[i])):
+                print(map[i][j], end=' ')
+            print()
 
     def testEnv(self):
         print(' ', self.environment[0], ' ')
@@ -58,29 +87,32 @@ class A_Espia():
         self.environment[2] = self.workingMap[self.position[0] + 1][self.position[1]]
         self.environment[3] = self.workingMap[self.position[0]][self.position[1] - 1]
 
-        self.updateAgentMap()
+        if not self.hasTreasure:
+            self.updateAgentMap()
 
         for index in range(4):
             element = self.environment[index]
-            if element == ' ':
+            if element == self.allowedPath:
                 self.environment[index] = 0
             elif element == '+' or element == '|' or element == '=':
                 self.environment[index] = 1
-            elif element == '#':   #Falta analizar
+            elif element == self.blockedPath:   #Falta analizar
                 self.environment[index] = 2
             elif element == 'G':
                 self.environment[index] = 3
             elif element == '$':
                 self.environment[index] = 4
+                return index
             elif element == 'C':
                 self.environment[index] = 5
             else:
                 print('Revisa tus caracteres')
 
-        self.testEnv()
+        #self.testEnv()
+        return -1
 
     def clearPosition(self):
-        self.workingMap[self.position[0]][self.position[1]] = '#'
+        self.workingMap[self.position[0]][self.position[1]] = self.blockedPath
         pass
 
     def updatePosition(self):
@@ -107,9 +139,14 @@ class A_Espia():
         self.updatePosition()
 
     def randomDirection(self):
-        self.checkEnvironment()
-
         impossibleMove = True
+        willGetTreasure = False
+
+        nextMove = self.checkEnvironment()
+        if nextMove != -1:
+            impossibleMove = False
+            willGetTreasure = True
+
         while impossibleMove:
             nextMove = self.randNum()
             if self.environment[nextMove] == 0:
@@ -123,3 +160,7 @@ class A_Espia():
             self.moveDown()
         elif nextMove == 3:
             self.moveLeft()
+
+        if willGetTreasure:
+            self.hasTreasure = True
+            self.allowedPath, self.blockedPath = self.blockedPath, self.allowedPath

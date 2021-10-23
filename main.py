@@ -34,13 +34,12 @@ def printMap(map):
         print()
 
 
-
 mapa = [
     ['=', 'E', '=', '=', '=', '=', '=', '='],
     ['|', ' ', ' ', ' ', '+', 'G', 'C', '|'],
     ['|', ' ', ' ', ' ', ' ', ' ', 'G', '|'],
-    ['|', '+', ' ', ' ', ' ', '+', '+', '|'],
-    ['|', '+', '+', '+', ' ', ' ', 'T', '|'],
+    ['|', '+', ' ', '$', ' ', '+', '+', '|'],
+    ['|', '+', '+', '+', ' ', ' ', ' ', '|'],
     ['=', '=', '=', '=', '=', '=', '=', '=']
 ]
 
@@ -49,9 +48,8 @@ if __name__ == '__main__':
     print('Welcome to the game')
 
     #mapa = newMap()
-    printMap(mapa)
+    #printMap(mapa)
 
     a = A_Espia.A_Espia(mapa)
-    printMap(mapa)
+    #printMap(mapa)
     printMap(a.agentMap)
-
