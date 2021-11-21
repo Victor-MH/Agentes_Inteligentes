@@ -1,6 +1,7 @@
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import A_Espia
+import A_Guardia
 
 
 def newMap():
@@ -50,6 +51,9 @@ if __name__ == '__main__':
     #mapa = newMap()
     #printMap(mapa)
 
-    a = A_Espia.A_Espia(mapa)
+    #a = A_Espia.A_Espia(mapa)
     #printMap(mapa)
-    printMap(a.agentMap)
+    #printMap(a.agentMap)
+
+    g = A_Guardia.A_Guardia(mapa)
+    printMap(g.agentMap)
