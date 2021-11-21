@@ -51,17 +51,20 @@ class A_Espia:
             ['=', '=', '=', '=', '=', '=', '=', '=']
         ]
 
-        self.isAlive()
+        #self.isAlive()
 
-    def isAlive(self):
-        while True:
-            if self.hasTreasure and self.startPosition == self.position:
-                print('El espía salió con el tesoro')
-                break
-            self.randomDirection()
-            sleep(1)
-            clear()
-            self.printMap(self.workingMap)
+    def isAlive(self, capturedMove):
+        if self.hasTreasure and self.startPosition == self.position:
+            print('El espía salió con el tesoro')
+            return False  #False para salir el búcle principal "simulationFinished"
+
+        if capturedMove:
+            self.moveOneTo(capturedMove)
+        self.randomDirection()
+        sleep(1)
+        clear()
+        self.printMap(self.workingMap)
+        return True #True para continuar en el búcle
 
     def printMap(self, map):
         for i in range(len(map)):
@@ -107,6 +110,7 @@ class A_Espia:
                 self.environment[index] = 2
             elif element == 'G':
                 self.environment[index] = 3
+                return -3
             elif element == '$':
                 self.environment[index] = 4
                 return index
@@ -163,11 +167,37 @@ class A_Espia:
         self.position[1] -= 1
         self.updatePosition()
 
+    def moveOneTo(self, position):
+        if position[0] > self.position[0]:
+            self.moveDown()
+            self.lastMovement = 2
+            return
+
+        if position[0] < self.position[0]:
+            self.moveUp()
+            self.lastMovement = 0
+            return
+
+        # Manejo de coordenada x [y, x]
+        if position[1] > self.position[1]:
+            self.moveRight()
+            self.lastMovement = 1
+            return
+
+        if position[1] < self.position[1]:
+            self.moveLeft()
+            self.lastMovement = 3
+            return
+
     def randomDirection(self):
         impossibleMove = True
         willGetTreasure = False
 
         nextMove = self.checkEnvironment()
+
+        if nextMove == -3:
+            return
+
         if nextMove > -1:
             impossibleMove = False
             willGetTreasure = True
@@ -176,6 +206,10 @@ class A_Espia:
         if nextMove == -2:
             impossibleMove = False
             nextMove = self.agentBounded()
+
+        #if capturedMove != -1:
+            #impossibleMove = False
+            #nextMove = capturedMove
 
         while impossibleMove:
             nextMove = self.randNum()

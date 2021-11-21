@@ -51,9 +51,17 @@ if __name__ == '__main__':
     #mapa = newMap()
     #printMap(mapa)
 
-    #a = A_Espia.A_Espia(mapa)
-    #printMap(mapa)
-    #printMap(a.agentMap)
+    a = A_Espia.A_Espia(mapa)
+    printMap(mapa)
 
     g = A_Guardia.A_Guardia(mapa)
-    printMap(g.agentMap)
+    #printMap(g.agentMap)
+
+    simulationFinished = True
+    capturedMove = False
+
+    while simulationFinished:
+        simulationFinished = a.isAlive(capturedMove)
+        capturedMove = g.isAlive()
+
+    printMap(a.agentMap)
