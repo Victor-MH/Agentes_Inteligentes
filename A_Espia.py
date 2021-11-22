@@ -141,7 +141,7 @@ class A_Espia:
             return 1
 
     def clearPosition(self):
-        self.pastPosition = self.position
+        self.pastPosition[0], self.pastPosition[1] = self.position[0], self.position[1]
         self.workingMap[self.position[0]][self.position[1]] = self.blockedPath
 
     def updatePosition(self):

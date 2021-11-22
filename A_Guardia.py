@@ -52,7 +52,11 @@ class A_Guardia:
 
     def isAlive(self):
         if self.spyCaptured:
-            self.moveTo([1, 5])  # Ubicación de la celda
+            if self.position == [1, 5]:
+                self.moveTo(self.pastPosition)
+                return self.pastPosition
+            else:
+                self.moveTo([1, 5])  # Ubicación de la celda
             sleep(1)
             clear()
             self.printMap(self.workingMap)
@@ -86,7 +90,7 @@ class A_Guardia:
             print()
 
     def clearPosition(self):
-        self.pastPosition = self.position
+        self.pastPosition[0], self.pastPosition[1] = self.position[0], self.position[1]
         self.workingMap[self.position[0]][self.position[1]] = ' '
 
     def updatePosition(self):
