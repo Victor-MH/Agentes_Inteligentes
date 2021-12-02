@@ -64,6 +64,9 @@ class A_Espia:
                 print('El espía fue capturado y llegó a la celda')
                 return False
             else:
+                if self.hasTreasure:
+                    self.allowedPath, self.blockedPath = self.blockedPath, self.allowedPath
+                    self.hasTreasure = False
                 self.moveOneTo(capturedMove)
         self.randomDirection()
         self.workingMap[0][1] = 'V'
@@ -88,10 +91,14 @@ class A_Espia:
         return num
 
     def updateAgentMap(self):
-        self.agentMap[self.position[0] - 1][self.position[1]] = self.workingMap[self.position[0] - 1][self.position[1]]
-        self.agentMap[self.position[0]][self.position[1] + 1] = self.workingMap[self.position[0]][self.position[1] + 1]
-        self.agentMap[self.position[0] + 1][self.position[1]] = self.workingMap[self.position[0] + 1][self.position[1]]
-        self.agentMap[self.position[0]][self.position[1] - 1] = self.workingMap[self.position[0]][self.position[1] - 1]
+        if self.agentMap[self.position[0] - 1][self.position[1]] == ' ':
+            self.agentMap[self.position[0] - 1][self.position[1]] = self.workingMap[self.position[0] - 1][self.position[1]]
+        if self.agentMap[self.position[0]][self.position[1] + 1] == ' ':
+            self.agentMap[self.position[0]][self.position[1] + 1] = self.workingMap[self.position[0]][self.position[1] + 1]
+        if self.agentMap[self.position[0] + 1][self.position[1]] == ' ':
+            self.agentMap[self.position[0] + 1][self.position[1]] = self.workingMap[self.position[0] + 1][self.position[1]]
+        if self.agentMap[self.position[0]][self.position[1] - 1] == ' ':
+            self.agentMap[self.position[0]][self.position[1] - 1] = self.workingMap[self.position[0]][self.position[1] - 1]
 
         self.agentMap[self.position[0]][self.position[1]] = '#'
 

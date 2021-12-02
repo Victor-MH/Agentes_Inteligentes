@@ -13,7 +13,7 @@ def clear():
 
 
 class A_Guardia:
-    def __init__(self, originalMap):
+    def __init__(self, originalMap, startpos):
         self.originalMap = tuple(originalMap)
         self.workingMap = originalMap
         print('El guardia está vivoooo')
@@ -21,11 +21,11 @@ class A_Guardia:
         # Almacena los estados en las 4 direcciones (arriba, derecha, abajo, izquierda)
         self.environment = [0, 0, 0, 0]
         # Almacena la posición donde entró el agente y,x
-        self.startPosition = [1, 5]  # 1,5 es donde lo tenia
+        self.startPosition = startpos  # 1,5 es donde lo tenia
         # Almacena la posición del agente y,x
-        self.position = [1, 5]
+        self.position = [startpos[0], startpos[1]]
         # Almacena la posición anterior del agente y,x
-        self.pastPosition = [1, 5]
+        self.pastPosition = [startpos[0], startpos[1]]
         # Almacena el último movimiento realizado, en caso de tener que regresar puede usar esta variable. Str vacío porque no se puede vacía
         self.lastMovement = ''
         # Caracteres por los que se puede mover, cuando captura al espía solo puede moverse por el camino que ya
@@ -43,13 +43,13 @@ class A_Guardia:
 
     def isAlive(self):
         if self.spyCaptured:
-            if self.position == [1, 5]:
+            if self.position == self.startPosition:
                 # self.moveTo(self.pastPosition)
                 # return self.pastPosition
                 sleep(1)
                 return -1  # fin de simulación por espía capturado
             else:
-                self.moveTo([1, 5])  # Ubicación de la celda
+                self.moveTo(self.startPosition)  # Ubicación de la celda
             sleep(1)
             clear()
             self.printMap(self.workingMap)
@@ -237,7 +237,7 @@ class A_Guardia:
         # Espía capturado
         if nextMove == -3 and self.mode == 'reactivo' and not self.spyCaptured:
             self.spyCaptured = True
-            self.moveTo([1, 5])  # Ubicación de la celda
+            self.moveTo(self.startPosition)  # Ubicación de la celda
             return True
 
         while impossibleMove:

@@ -54,7 +54,7 @@ if __name__ == '__main__':
 
 
     a = A_Espia.A_Espia(mapa)
-    g = A_Guardia.A_Guardia(mapa)
+    g = A_Guardia.A_Guardia(mapa, [2, 6])
     printMap(mapa)
     sleep(2)
     simulationNotFinished = True
