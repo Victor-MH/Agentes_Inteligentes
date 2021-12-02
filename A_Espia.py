@@ -16,10 +16,11 @@ class A_Espia:
     # Estados:
     # 0 | libre         | ' '
     # 1 | obstáculo     |  + or '|' or '='
-    # 2 | ya explorado  |
+    # 2 | ya explorado  |  #
     # 3 | guardia       |  G
     # 4 | tesoro        |  $
     # 5 | cárcel        |  C
+    # 6 | entrada       |  V
     def __init__(self, originalMap):
         self.originalMap = tuple(originalMap)
         self.workingMap = originalMap
@@ -59,8 +60,13 @@ class A_Espia:
             return False  #False para salir el búcle principal "simulationFinished"
 
         if capturedMove:
-            self.moveOneTo(capturedMove)
+            if capturedMove == -1:  #Fin de simulación por capturado y llegar a la celda
+                print('El espía fue capturado y llegó a la celda')
+                return False
+            else:
+                self.moveOneTo(capturedMove)
         self.randomDirection()
+        self.workingMap[0][1] = 'V'
         sleep(1)
         clear()
         self.printMap(self.workingMap)
@@ -116,6 +122,10 @@ class A_Espia:
                 return index
             elif element == 'C':
                 self.environment[index] = 5
+            elif element == 'V':
+                self.environment[index] = 6
+                if self.hasTreasure:
+                    return index
             else:
                 print('Revisa tus caracteres')
 
@@ -168,6 +178,7 @@ class A_Espia:
         self.updatePosition()
 
     def moveOneTo(self, position):
+        self.updateAgentMap()
         if position[0] > self.position[0]:
             self.moveDown()
             self.lastMovement = 2

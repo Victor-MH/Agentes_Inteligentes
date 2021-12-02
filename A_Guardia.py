@@ -21,7 +21,7 @@ class A_Guardia:
         # Almacena los estados en las 4 direcciones (arriba, derecha, abajo, izquierda)
         self.environment = [0, 0, 0, 0]
         # Almacena la posición donde entró el agente y,x
-        self.startPosition = [1, 5]   #1,5 es donde lo tenia
+        self.startPosition = [1, 5]  # 1,5 es donde lo tenia
         # Almacena la posición del agente y,x
         self.position = [1, 5]
         # Almacena la posición anterior del agente y,x
@@ -38,23 +38,16 @@ class A_Guardia:
         self.mode = 'reactivo'
         # Espía capturado?
         self.spyCaptured = False
-        # Donde se el agente construye su mapa
-        self.agentMap = [
-            ['=', 'E', '=', '=', '=', '=', '=', '='],
-            ['|', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
-            ['|', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
-            ['|', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
-            ['|', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
-            ['=', '=', '=', '=', '=', '=', '=', '=']
-        ]
 
-        self.isAlive()
+        #self.isAlive()
 
     def isAlive(self):
         if self.spyCaptured:
             if self.position == [1, 5]:
-                self.moveTo(self.pastPosition)
-                return self.pastPosition
+                # self.moveTo(self.pastPosition)
+                # return self.pastPosition
+                sleep(1)
+                return -1  # fin de simulación por espía capturado
             else:
                 self.moveTo([1, 5])  # Ubicación de la celda
             sleep(1)
@@ -74,10 +67,10 @@ class A_Guardia:
                 self.printMap(self.workingMap)
                 return False
 
-        #Si queremos simular hilos múltiples y solo imprima el espía
-        #sleep(1)
-        #clear()
-        #self.printMap(self.workingMap)
+        # Si queremos simular hilos múltiples y solo imprima el espía
+        # sleep(1)
+        # clear()
+        # self.printMap(self.workingMap)
 
     def randNum(self):
         num = random.randint(0, 3)
@@ -122,29 +115,28 @@ class A_Guardia:
         self.environment[2] = self.workingMap[self.position[0] + 1][self.position[1]]
         self.environment[3] = self.workingMap[self.position[0]][self.position[1] - 1]
 
-        #if not self.hasTreasure:
-            #self.updateAgentMap()
-
         isBounded = True
 
         for index in range(4):
             element = self.environment[index]
             if element == self.allowedPath:
                 self.environment[index] = 0
-            elif element == '+' or element == '|' or element == '=':
+            elif element == '+' or element == '|' or element == '=' or element == ' V':
                 self.environment[index] = 1
             elif element == self.blockedPath:  # Falta analizar
-                self.environment[index] = 2
+                # self.environment[index] = 2
+                self.environment[index] = 0
             elif element == 'G':
                 self.environment[index] = 3
             elif element == '$':
                 self.environment[index] = 4
-                #return index
+                # return index
             elif element == 'C':
                 self.environment[index] = 5
             elif element == 'E':
                 self.environment[index] = 6
-                return -3
+                if not self.spyCaptured:
+                    return -3
             else:
                 print('Revisa tus caracteres')
 
@@ -153,11 +145,17 @@ class A_Guardia:
             if isBounded and (self.environment[index] == 0):
                 isBounded = False
 
-        # self.testEnv()
+        #self.testEnv()
         if isBounded:
             return -2  # Está encerrado y debe regresar un turno para retomar el curso
         else:
             return -1  # Puede moverse y tomará un camino aleatorio
+
+
+    def testEnv(self):
+        print(' ', self.environment[0], ' ')
+        print(self.environment[3], self.workingMap[self.position[0]][self.position[1]], self.environment[1])
+        print(' ', self.environment[2], ' ')
 
     def moveTo(self, position):
 
@@ -165,8 +163,7 @@ class A_Guardia:
         if position == self.position:
             return False
 
-
-        #TODO Limpiar este código
+        # TODO Limpiar este código
         if self.moveToPriority == 'y':
             # Manejo de coordenada y [y, x]
             if position[0] > self.position[0]:
@@ -228,8 +225,8 @@ class A_Guardia:
                     self.moveToPriority = 'x'
                     return True
 
-        #Ya que revisamos que no puede avanzar hacía las direcciones que le convienen va a moverse aleatoriamente hacía donde pueda
-        #y con el cambio de prioridad en ejes evitamos que quede atrapado, y sigue buscando su objetivo
+        # Ya que revisamos que no puede avanzar hacía las direcciones que le convienen va a moverse aleatoriamente hacía donde pueda
+        # y con el cambio de prioridad en ejes evitamos que quede atrapado, y sigue buscando su objetivo
         self.randomDirection()
         return True
 
@@ -237,8 +234,8 @@ class A_Guardia:
         impossibleMove = True
         nextMove = self.checkEnvironment()
 
-        #Espía capturado
-        if nextMove == -3 and self.mode == 'reactivo':
+        # Espía capturado
+        if nextMove == -3 and self.mode == 'reactivo' and not self.spyCaptured:
             self.spyCaptured = True
             self.moveTo([1, 5])  # Ubicación de la celda
             return True

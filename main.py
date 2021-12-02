@@ -2,6 +2,7 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import A_Espia
 import A_Guardia
+from time import sleep
 
 
 def newMap():
@@ -51,17 +52,18 @@ if __name__ == '__main__':
     #mapa = newMap()
     #printMap(mapa)
 
+
     a = A_Espia.A_Espia(mapa)
-    printMap(mapa)
-
     g = A_Guardia.A_Guardia(mapa)
-    #printMap(g.agentMap)
-
-    simulationFinished = True
+    printMap(mapa)
+    sleep(2)
+    simulationNotFinished = True
     capturedMove = False
 
-    while simulationFinished:
-        simulationFinished = a.isAlive(capturedMove)
+    while simulationNotFinished:
+        simulationNotFinished = a.isAlive(capturedMove)
         capturedMove = g.isAlive()
+        if capturedMove == -1:
+            simulationNotFinished = False
 
     printMap(a.agentMap)
