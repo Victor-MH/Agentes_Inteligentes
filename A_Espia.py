@@ -42,6 +42,8 @@ class A_Espia:
         # recorrió e intercambiamos los caracteres
         self.allowedPath = ' '
         self.blockedPath = '#'
+        # El espía y siguiendo al guardia quedaron atrapados, se hace un switch de lugares
+        self.willSwitchPlaces = False
         # Donde se el agente construye su mapa
         self.agentMap = [
             ['=', 'E', '=', '=', '=', '=', '=', '='],
@@ -61,8 +63,13 @@ class A_Espia:
 
         if capturedMove:
             if capturedMove == -1:  #Fin de simulación por capturado y llegar a la celda
-                print('El espía fue capturado y llegó a la celda')
+                #print('El espía fue capturado y llegó a la celda')
                 return False
+            elif capturedMove == 'switchPlaces':
+                self.switchPlaces()
+                return self.pastPosition
+            elif capturedMove == 'switched':
+                return True
             else:
                 if self.hasTreasure:
                     self.allowedPath, self.blockedPath = self.blockedPath, self.allowedPath
@@ -70,7 +77,7 @@ class A_Espia:
                 self.moveOneTo(capturedMove)
         self.randomDirection()
         self.workingMap[0][1] = 'V'
-        sleep(1)
+        sleep(.5)
         clear()
         self.printMap(self.workingMap)
         return True #True para continuar en el búcle
@@ -123,6 +130,8 @@ class A_Espia:
                 self.environment[index] = 2
             elif element == 'G':
                 self.environment[index] = 3
+                if self.willSwitchPlaces:
+                    return index
                 return -3
             elif element == '$':
                 self.environment[index] = 4
@@ -183,6 +192,21 @@ class A_Espia:
         self.clearPosition()
         self.position[1] -= 1
         self.updatePosition()
+
+    def switchPlaces(self):
+        self.willSwitchPlaces = True
+        nextMove = self.checkEnvironment()
+        if nextMove == 0:
+            self.moveUp()
+        elif nextMove == 1:
+            self.moveRight()
+        elif nextMove == 2:
+            self.moveDown()
+        elif nextMove == 3:
+            self.moveLeft()
+
+        self.workingMap[self.pastPosition[0]][self.pastPosition[1]] = 'G'
+
 
     def moveOneTo(self, position):
         self.updateAgentMap()

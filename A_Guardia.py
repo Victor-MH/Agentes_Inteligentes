@@ -38,37 +38,48 @@ class A_Guardia:
         self.mode = 'reactivo'
         # Espía capturado?
         self.spyCaptured = False
+        # Tiempo entre turnos
+        self.turnTime = .5
 
         #self.isAlive()
 
-    def isAlive(self):
-        if self.spyCaptured:
-            if self.position == self.startPosition:
-                # self.moveTo(self.pastPosition)
-                # return self.pastPosition
-                sleep(1)
-                return -1  # fin de simulación por espía capturado
-            else:
-                self.moveTo(self.startPosition)  # Ubicación de la celda
-            sleep(1)
-            clear()
-            self.printMap(self.workingMap)
-            return self.pastPosition
+    def isAlive(self, capturedMove):
+        if capturedMove and not self.spyCaptured:
+            if self.position != self.startPosition:
+                self.moveTo(self.startPosition)
+            return capturedMove
+        elif type(capturedMove) == 'list':
+            self.moveTo(capturedMove)
+            self.workingMap[self.pastPosition[0]][self.pastPosition[1]] = 'E'
+            return 'switched'
         else:
-            spyCaptured = self.randomDirection()
-            if spyCaptured:
-                sleep(1)
+            if self.spyCaptured:
+                if self.position == self.startPosition:
+                    sleep(self.turnTime)
+                    return -1  # fin de simulación por espía capturado
+                else:
+                    switch = self.moveTo(self.startPosition)  # Ubicación de la celda
+                    if switch == 'switchPlaces':
+                        return 'switchPlaces'
+                sleep(self.turnTime)
                 clear()
                 self.printMap(self.workingMap)
                 return self.pastPosition
             else:
-                sleep(1)
-                clear()
-                self.printMap(self.workingMap)
-                return False
+                spyCaptured = self.randomDirection()
+                if spyCaptured:
+                    sleep(self.turnTime)
+                    clear()
+                    self.printMap(self.workingMap)
+                    return self.pastPosition
+                else:
+                    sleep(self.turnTime)
+                    clear()
+                    self.printMap(self.workingMap)
+                    return False
 
         # Si queremos simular hilos múltiples y solo imprima el espía
-        # sleep(1)
+        # sleep(self.turnTime
         # clear()
         # self.printMap(self.workingMap)
 
@@ -227,7 +238,9 @@ class A_Guardia:
 
         # Ya que revisamos que no puede avanzar hacía las direcciones que le convienen va a moverse aleatoriamente hacía donde pueda
         # y con el cambio de prioridad en ejes evitamos que quede atrapado, y sigue buscando su objetivo
-        self.randomDirection()
+        switch = self.randomDirection()
+        if switch == 'switchPlaces':
+            return 'switchPlaces'
         return True
 
     def randomDirection(self):
@@ -239,6 +252,11 @@ class A_Guardia:
             self.spyCaptured = True
             self.moveTo(self.startPosition)  # Ubicación de la celda
             return True
+
+        if nextMove == -2: #Está encerrado
+            if self.spyCaptured: #Está encerrado pero puede cambiar de lugar con el espía para volver por donde llegaron
+                return 'switchPlaces'
+            return False
 
         while impossibleMove:
             nextMove = self.randNum()

@@ -55,6 +55,7 @@ if __name__ == '__main__':
 
     a = A_Espia.A_Espia(mapa)
     g = A_Guardia.A_Guardia(mapa, [2, 6])
+    g2 = A_Guardia.A_Guardia(mapa, [1, 5])
     printMap(mapa)
     sleep(2)
     simulationNotFinished = True
@@ -62,8 +63,10 @@ if __name__ == '__main__':
 
     while simulationNotFinished:
         simulationNotFinished = a.isAlive(capturedMove)
-        capturedMove = g.isAlive()
+        capturedMove = g.isAlive(capturedMove)
+        capturedMove = g2.isAlive(capturedMove)
         if capturedMove == -1:
+            print('El espía fue capturado y llegó a la celda')
             simulationNotFinished = False
 
     printMap(a.agentMap)
