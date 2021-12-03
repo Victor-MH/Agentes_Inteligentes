@@ -38,6 +38,8 @@ class A_Guardia:
         self.mode = 'reactivo'
         # Espía capturado?
         self.spyCaptured = False
+        # El espía y siguiendo al guardia quedaron atrapados, se hace un switch de lugares
+        self.willSwitchPlaces = False
         # Tiempo entre turnos
         self.turnTime = .5
 
@@ -48,9 +50,11 @@ class A_Guardia:
             if self.position != self.startPosition:
                 self.moveTo(self.startPosition)
             return capturedMove
-        elif type(capturedMove) == 'list':
-            self.moveTo(capturedMove)
+        elif isinstance(capturedMove, list) and self.willSwitchPlaces:
+            self.moveOneTo(capturedMove)
             self.workingMap[self.pastPosition[0]][self.pastPosition[1]] = 'E'
+            self.willSwitchPlaces = False
+            self.printMap(self.workingMap) #se deja
             return 'switched'
         else:
             if self.spyCaptured:
@@ -60,6 +64,7 @@ class A_Guardia:
                 else:
                     switch = self.moveTo(self.startPosition)  # Ubicación de la celda
                     if switch == 'switchPlaces':
+                        self.willSwitchPlaces = True
                         return 'switchPlaces'
                 sleep(self.turnTime)
                 clear()
@@ -68,13 +73,9 @@ class A_Guardia:
             else:
                 spyCaptured = self.randomDirection()
                 if spyCaptured:
-                    sleep(self.turnTime)
-                    clear()
                     self.printMap(self.workingMap)
                     return self.pastPosition
                 else:
-                    sleep(self.turnTime)
-                    clear()
                     self.printMap(self.workingMap)
                     return False
 
@@ -88,6 +89,8 @@ class A_Guardia:
         return num
 
     def printMap(self, map):
+        sleep(self.turnTime)
+        clear()
         for i in range(len(map)):
             for j in range(len(map[i])):
                 print(map[i][j], end=' ')
@@ -167,6 +170,28 @@ class A_Guardia:
         print(' ', self.environment[0], ' ')
         print(self.environment[3], self.workingMap[self.position[0]][self.position[1]], self.environment[1])
         print(' ', self.environment[2], ' ')
+
+    def moveOneTo(self, position):
+        if position[0] > self.position[0]:
+            self.moveDown()
+            self.lastMovement = 2
+            return
+
+        if position[0] < self.position[0]:
+            self.moveUp()
+            self.lastMovement = 0
+            return
+
+        # Manejo de coordenada x [y, x]
+        if position[1] > self.position[1]:
+            self.moveRight()
+            self.lastMovement = 1
+            return
+
+        if position[1] < self.position[1]:
+            self.moveLeft()
+            self.lastMovement = 3
+            return
 
     def moveTo(self, position):
 

@@ -59,11 +59,10 @@ class A_Espia:
     def isAlive(self, capturedMove):
         if self.hasTreasure and self.startPosition == self.position:
             print('El espía salió con el tesoro')
-            return False  #False para salir el búcle principal "simulationFinished"
+            return False  #False para salir el búcle principal "simulationNotFinished"
 
         if capturedMove:
             if capturedMove == -1:  #Fin de simulación por capturado y llegar a la celda
-                #print('El espía fue capturado y llegó a la celda')
                 return False
             elif capturedMove == 'switchPlaces':
                 self.switchPlaces()
@@ -77,12 +76,12 @@ class A_Espia:
                 self.moveOneTo(capturedMove)
         self.randomDirection()
         self.workingMap[0][1] = 'V'
-        sleep(.5)
-        clear()
         self.printMap(self.workingMap)
         return True #True para continuar en el búcle
 
     def printMap(self, map):
+        sleep(.5)
+        clear()
         for i in range(len(map)):
             for j in range(len(map[i])):
                 print(map[i][j], end=' ')
@@ -196,6 +195,10 @@ class A_Espia:
     def switchPlaces(self):
         self.willSwitchPlaces = True
         nextMove = self.checkEnvironment()
+
+        if nextMove == -2: #chance y se quita
+            return True
+
         if nextMove == 0:
             self.moveUp()
         elif nextMove == 1:
@@ -206,6 +209,7 @@ class A_Espia:
             self.moveLeft()
 
         self.workingMap[self.pastPosition[0]][self.pastPosition[1]] = 'G'
+        self.willSwitchPlaces = False
 
 
     def moveOneTo(self, position):
