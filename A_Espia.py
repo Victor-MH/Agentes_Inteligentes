@@ -22,7 +22,6 @@ class A_Espia:
     # 5 | cárcel        |  C
     # 6 | entrada       |  V
     def __init__(self, originalMap, mode):
-        self.originalMap = tuple(originalMap)
         self.workingMap = originalMap
         print('El agente está vivoooo')
 
@@ -51,16 +50,7 @@ class A_Espia:
         # Variable que alterna la prioridad entre ejes en la función moveTo() para evitar un ciclo infinito entre dos lugares
         self.moveToPriority = 'y'
         # Donde se el agente construye su mapa
-        self.agentMap = [
-            ['=', 'E', '=', '=', '=', '=', '=', '=', '=', '='],
-            ['|', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
-            ['|', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
-            ['|', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
-            ['|', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
-            ['|', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
-            ['|', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
-            ['=', '=', '=', '=', '=', '=', '=', '=', '=', '=']
-        ]
+        self.agentMap = self.createBlankMap()
 
         #self.isAlive()
 
@@ -89,6 +79,8 @@ class A_Espia:
                     self.allowedPath, self.blockedPath = self.blockedPath, self.allowedPath
                     self.hasTreasure = False
                 self.moveOneTo(capturedMove)
+                self.printMap(self.workingMap)
+                return capturedMove
         self.randomDirection()
         self.workingMap[0][1] = 'V'
         self.printMap(self.workingMap)
@@ -101,6 +93,27 @@ class A_Espia:
             for j in range(len(map[i])):
                 print(map[i][j], end=' ')
             print()
+
+    def createBlankMap(self):
+        y = len(self.workingMap)
+        x = len(self.workingMap[0])
+
+        mapa = []
+
+        for i in range(y):
+            mapa.append([])
+            for j in range(x):
+                mapa[i].append(' ')
+
+        for i in range(x):
+            mapa[0][i] = '='
+            mapa[y - 1][i] = '='
+
+        for i in range(y):
+            mapa[i][0] = '|'
+            mapa[i][x - 1] = '|'
+
+        return mapa
 
     def testEnv(self):
         print(' ', self.environment[0], ' ')

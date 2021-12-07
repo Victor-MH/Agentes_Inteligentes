@@ -14,7 +14,6 @@ def clear():
 
 class A_Guardia:
     def __init__(self, originalMap, startpos, mode):
-        self.originalMap = tuple(originalMap)
         self.workingMap = originalMap
         print('El guardia está vivoooo')
 
@@ -50,7 +49,6 @@ class A_Guardia:
         # Si el guardia quedó inhabilitado al no llegar refuerzos
         self.dead = False
 
-        #self.isAlive()
 
     def isAlive(self, capturedMove):
         if self.mode == 'colaborativo':
