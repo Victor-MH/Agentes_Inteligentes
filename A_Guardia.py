@@ -13,7 +13,7 @@ def clear():
 
 
 class A_Guardia:
-    def __init__(self, originalMap, startpos):
+    def __init__(self, originalMap, startpos, mode):
         self.originalMap = tuple(originalMap)
         self.workingMap = originalMap
         print('El guardia está vivoooo')
@@ -35,26 +35,58 @@ class A_Guardia:
         # Variable que alterna la prioridad entre ejes en la función moveTo() para evitar un ciclo infinito entre dos lugares
         self.moveToPriority = 'y'
         # Guarda el modo de simulación
-        self.mode = 'reactivo'
+        self.mode = mode
         # Espía capturado?
         self.spyCaptured = False
         # El espía y siguiendo al guardia quedaron atrapados, se hace un switch de lugares
         self.willSwitchPlaces = False
         # Tiempo entre turnos
         self.turnTime = .5
+        # Si va a ayudar, cuando llega y capturan al espía definitivamente se cambia a false para no volver al bucle de 7 turnos
+        self.goingToHelp = True
+        # Llegó la ayuda? (edq la q por questionmark "?") se activa cuando entra al bucle de 7 turnos para que si en
+        # checkenvironment detecta al G aledaño devuelva "arrived" por la cadena
+        self.helpArrivedq = False
+        # Si el guardia quedó inhabilitado al no llegar refuerzos
+        self.dead = False
 
         #self.isAlive()
 
     def isAlive(self, capturedMove):
+        if self.mode == 'colaborativo':
+            if self.dead:
+               return capturedMove
+            if capturedMove == 'die' and self.spyCaptured:
+                self.dead = True
+                self.workingMap[self.position[0]][self.position[1]] = ' '
+                return False    #Como muere el espía queda libre
         if capturedMove and not self.spyCaptured:
+            if self.mode == 'colaborativo' and self.goingToHelp:
+                self.helpArrivedq = True
+                for counter in range(7):
+                    print('turno ' + str(counter + 1))
+                    if self.position != capturedMove:
+                        arrived = self.moveTo(capturedMove)
+                        if arrived == 'arrived':
+                            break
+                        if counter == 6 and (self.position != capturedMove):   #No llegó
+                            return 'die'
+                    else: #Llegó a donde estaba el guardia antes de capturar al espía
+                        break
+                    self.printMap(self.workingMap)
+                self.goingToHelp = False
+                self.helpArrivedq = False
+                return 'captured'
+
             if self.position != self.startPosition:
                 self.moveTo(self.startPosition)
+                self.printMap(self.workingMap)
             return capturedMove
         elif isinstance(capturedMove, list) and self.willSwitchPlaces:
             self.moveOneTo(capturedMove)
             self.workingMap[self.pastPosition[0]][self.pastPosition[1]] = 'E'
             self.willSwitchPlaces = False
-            self.printMap(self.workingMap) #se deja
+            self.printMap(self.workingMap)
             return 'switched'
         else:
             if self.spyCaptured:
@@ -66,8 +98,6 @@ class A_Guardia:
                     if switch == 'switchPlaces':
                         self.willSwitchPlaces = True
                         return 'switchPlaces'
-                sleep(self.turnTime)
-                clear()
                 self.printMap(self.workingMap)
                 return self.pastPosition
             else:
@@ -142,6 +172,8 @@ class A_Guardia:
                 self.environment[index] = 0
             elif element == 'G':
                 self.environment[index] = 3
+                if self.helpArrivedq:
+                    return 'arrived'
             elif element == '$':
                 self.environment[index] = 4
                 # return index
@@ -164,7 +196,6 @@ class A_Guardia:
             return -2  # Está encerrado y debe regresar un turno para retomar el curso
         else:
             return -1  # Puede moverse y tomará un camino aleatorio
-
 
     def testEnv(self):
         print(' ', self.environment[0], ' ')
@@ -194,6 +225,12 @@ class A_Guardia:
             return
 
     def moveTo(self, position):
+
+        if self.goingToHelp:
+            helpArrived = self.checkEnvironment()
+            if helpArrived == 'arrived':
+                return 'arrived'
+
 
         self.checkEnvironment()
         if position == self.position:
@@ -273,9 +310,10 @@ class A_Guardia:
         nextMove = self.checkEnvironment()
 
         # Espía capturado
-        if nextMove == -3 and self.mode == 'reactivo' and not self.spyCaptured:
+        if nextMove == -3 and not self.spyCaptured:
             self.spyCaptured = True
-            self.moveTo(self.startPosition)  # Ubicación de la celda
+            if self.mode == 'reactivo':
+                self.moveTo(self.startPosition)  # Ubicación de la celda
             return True
 
         if nextMove == -2: #Está encerrado

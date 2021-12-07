@@ -37,42 +37,59 @@ def printMap(map):
 
 
 mapa = [
-    ['=', 'E', '=', '=', '=', '=', '=', '='],
-    ['|', ' ', ' ', ' ', '+', 'G', 'C', '|'],
-    ['|', ' ', ' ', ' ', ' ', ' ', 'G', '|'],
-    ['|', '+', ' ', '$', ' ', '+', '+', '|'],
-    ['|', '+', '+', '+', ' ', ' ', ' ', '|'],
-    ['=', '=', '=', '=', '=', '=', '=', '=']
+    ['=', 'E', '=', '=', '=', '=', '=', '=', '=', '='],
+    ['|', ' ', ' ', ' ', ' ', ' ', '+', 'G', 'C', '|'],
+    ['|', ' ', ' ', ' ', ' ', '+', ' ', ' ', 'G', '|'],
+    ['|', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
+    ['|', '+', ' ', ' ', ' ', ' ', ' ', ' ', '+', '|'],
+    ['|', '+', ' ', '$', ' ', ' ', ' ', '+', ' ', '|'],
+    ['|', '+', '+', '+', ' ', ' ', ' ', ' ', ' ', '|'],
+    ['=', '=', '=', '=', '=', '=', '=', '=', '=', '=']
 ]
+
+def menu():
+    print('''
+    1. Reactivo
+    2. Colaborativo
+    3. Salir
+
+    ''')
+    seleccion = input('Selecciona la opción que deseas: ')
+
+    if seleccion == '1':
+        return 'reactivo'
+    elif seleccion == '2':
+        return 'colaborativo'
+    else:
+        return 0
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     print('Welcome to the game')
 
-    #mapa = newMap()
-    #printMap(mapa)
+    mode = menu()
+    if mode != 0:
+        a = A_Espia.A_Espia(mapa, mode)
+        g = A_Guardia.A_Guardia(mapa, [1, 7], mode)
+        g2 = A_Guardia.A_Guardia(mapa, [2, 8], mode)
+        printMap(mapa)
 
+        print('Última escena')
+        sleep(1)
+        simulationNotFinished = True
+        capturedMove = False
 
-    a = A_Espia.A_Espia(mapa)
-    g = A_Guardia.A_Guardia(mapa, [2, 6])
-    g2 = A_Guardia.A_Guardia(mapa, [1, 5])
-    printMap(mapa)
-    print('Última escena')
-    sleep(2)
-    simulationNotFinished = True
-    capturedMove = False
+        while simulationNotFinished:
+            simulationNotFinished = a.isAlive(capturedMove)
+            if not simulationNotFinished:
+                break
+            if isinstance(simulationNotFinished, list):
+                capturedMove = simulationNotFinished
+            capturedMove = g.isAlive(capturedMove)
+            capturedMove = g2.isAlive(capturedMove)
+            if capturedMove == -1:
+                print('El espía fue capturado y llegó a la celda')
+                simulationNotFinished = False
 
-    while simulationNotFinished:
-        simulationNotFinished = a.isAlive(capturedMove)
-        if not simulationNotFinished:
-            break
-        if isinstance(simulationNotFinished, list):
-            capturedMove = simulationNotFinished
-        capturedMove = g.isAlive(capturedMove)
-        capturedMove = g2.isAlive(capturedMove)
-        if capturedMove == -1:
-            print('El espía fue capturado y llegó a la celda')
-            simulationNotFinished = False
-
-    print('Mapa del espía:')
-    printMap(a.agentMap)
+        print('Mapa del espía:')
+        printMap(a.agentMap)

@@ -21,7 +21,7 @@ class A_Espia:
     # 4 | tesoro        |  $
     # 5 | cárcel        |  C
     # 6 | entrada       |  V
-    def __init__(self, originalMap):
+    def __init__(self, originalMap, mode):
         self.originalMap = tuple(originalMap)
         self.workingMap = originalMap
         print('El agente está vivoooo')
@@ -42,24 +42,36 @@ class A_Espia:
         # recorrió e intercambiamos los caracteres
         self.allowedPath = ' '
         self.blockedPath = '#'
+        # Guarda el modo de simulación
+        self.mode = mode
         # El espía y siguiendo al guardia quedaron atrapados, se hace un switch de lugares
         self.willSwitchPlaces = False
+        # Primer turno que es capturado se salta para que le envíe las coordenadas al otro guardia
+        self.fighting = True
+        # Variable que alterna la prioridad entre ejes en la función moveTo() para evitar un ciclo infinito entre dos lugares
+        self.moveToPriority = 'y'
         # Donde se el agente construye su mapa
         self.agentMap = [
-            ['=', 'E', '=', '=', '=', '=', '=', '='],
-            ['|', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
-            ['|', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
-            ['|', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
-            ['|', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
-            ['=', '=', '=', '=', '=', '=', '=', '=']
+            ['=', 'E', '=', '=', '=', '=', '=', '=', '=', '='],
+            ['|', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
+            ['|', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
+            ['|', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
+            ['|', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
+            ['|', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
+            ['|', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '|'],
+            ['=', '=', '=', '=', '=', '=', '=', '=', '=', '=']
         ]
 
         #self.isAlive()
 
     def isAlive(self, capturedMove):
-        if self.hasTreasure and self.startPosition == self.position:
-            print('El espía salió con el tesoro')
-            return False  #False para salir el búcle principal "simulationNotFinished"
+        if self.hasTreasure and not capturedMove:
+            if self.startPosition == self.position:
+                print('El espía salió con el tesoro')
+                return False  #False para salir el búcle principal "simulationNotFinished"
+            self.moveTo(self.startPosition)
+            self.printMap(self.workingMap)
+            return True
 
         if capturedMove:
             if capturedMove == -1:  #Fin de simulación por capturado y llegar a la celda
@@ -69,6 +81,9 @@ class A_Espia:
                 return self.pastPosition
             elif capturedMove == 'switched':
                 return True
+            elif capturedMove == 'die' or capturedMove == 'captured' or (self.mode == 'colaborativo' and self.fighting):
+                self.fighting = False
+                return capturedMove
             else:
                 if self.hasTreasure:
                     self.allowedPath, self.blockedPath = self.blockedPath, self.allowedPath
@@ -211,7 +226,6 @@ class A_Espia:
         self.workingMap[self.pastPosition[0]][self.pastPosition[1]] = 'G'
         self.willSwitchPlaces = False
 
-
     def moveOneTo(self, position):
         self.updateAgentMap()
         if position[0] > self.position[0]:
@@ -235,9 +249,99 @@ class A_Espia:
             self.lastMovement = 3
             return
 
+    def moveTo(self, position):
+        success = self.checkEnvironment()
+
+        if success == -2:
+            self.allowedPath, self.blockedPath = self.blockedPath, self.allowedPath
+            self.checkEnvironment()
+            self.allowedPath, self.blockedPath = self.blockedPath, self.allowedPath
+
+        if success > -1:
+            if success == 0:
+                self.moveUp()
+            elif success == 1:
+                self.moveRight()
+            elif success == 2:
+                self.moveDown()
+            elif success == 3:
+                self.moveLeft()
+            return
+
+        if position == self.position:
+            return False
+
+        # TODO Limpiar este código
+        if self.moveToPriority == 'y':
+            # Manejo de coordenada y [y, x]
+            if position[0] > self.position[0]:
+                if self.environment[2] == 0:
+                    self.moveDown()
+                    self.lastMovement = 2
+                    self.moveToPriority = 'x'
+                    return True
+
+            if position[0] < self.position[0]:
+                if self.environment[0] == 0:
+                    self.moveUp()
+                    self.lastMovement = 0
+                    self.moveToPriority = 'x'
+                    return True
+
+            # Manejo de coordenada x [y, x]
+            if position[1] > self.position[1]:
+                if self.environment[1] == 0:
+                    self.moveRight()
+                    self.lastMovement = 1
+                    self.moveToPriority = 'y'
+                    return True
+
+            if position[1] < self.position[1]:
+                if self.environment[3] == 0:
+                    self.moveLeft()
+                    self.lastMovement = 3
+                    self.moveToPriority = 'y'
+                    return True
+        elif self.moveToPriority == 'x':
+            # Manejo de coordenada x [y, x]
+            if position[1] > self.position[1]:
+                if self.environment[1] == 0:
+                    self.moveRight()
+                    self.lastMovement = 1
+                    self.moveToPriority = 'y'
+                    return True
+
+            if position[1] < self.position[1]:
+                if self.environment[3] == 0:
+                    self.moveLeft()
+                    self.lastMovement = 3
+                    self.moveToPriority = 'y'
+                    return True
+
+            # Manejo de coordenada y [y, x]
+            if position[0] > self.position[0]:
+                if self.environment[2] == 0:
+                    self.moveDown()
+                    self.lastMovement = 2
+                    self.moveToPriority = 'x'
+                    return True
+
+            if position[0] < self.position[0]:
+                if self.environment[0] == 0:
+                    self.moveUp()
+                    self.lastMovement = 1
+                    self.moveToPriority = 'x'
+                    return True
+
+        # Ya que revisamos que no puede avanzar hacía las direcciones que le convienen va a moverse aleatoriamente hacía donde pueda
+        # y con el cambio de prioridad en ejes evitamos que quede atrapado, y sigue buscando su objetivo
+        self.randomDirection()
+        return True
+
     def randomDirection(self):
         impossibleMove = True
         willGetTreasure = False
+        wasBounded = False
 
         nextMove = self.checkEnvironment()
 
@@ -248,14 +352,10 @@ class A_Espia:
             impossibleMove = False
             willGetTreasure = True
 
-        # TODO What happens when spy gets blocked by his path and not even going back is enough?
         if nextMove == -2:
-            impossibleMove = False
-            nextMove = self.agentBounded()
-
-        #if capturedMove != -1:
-            #impossibleMove = False
-            #nextMove = capturedMove
+            self.allowedPath, self.blockedPath = self.blockedPath, self.allowedPath
+            self.checkEnvironment()
+            wasBounded = True
 
         while impossibleMove:
             nextMove = self.randNum()
@@ -272,6 +372,10 @@ class A_Espia:
             self.moveDown()
         elif nextMove == 3:
             self.moveLeft()
+
+        if wasBounded:
+            self.allowedPath, self.blockedPath = self.blockedPath, self.allowedPath
+            self.workingMap[self.pastPosition[0]][self.pastPosition[1]] = self.blockedPath
 
         if willGetTreasure:
             self.hasTreasure = True
